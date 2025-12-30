@@ -1,0 +1,10 @@
+^C:\USERS\LENOVO\DOCUMENTS\PROJECTS\VDJ-YOUTUBE\BUILD\CMAKEFILES\EAF2D91FFD5422B22BFC9933B0523702\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/Lenovo/Documents/Projects/VDJ-Youtube -BC:/Users/Lenovo/Documents/Projects/VDJ-Youtube/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/Lenovo/Documents/Projects/VDJ-Youtube/build/YoutubePlugin.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

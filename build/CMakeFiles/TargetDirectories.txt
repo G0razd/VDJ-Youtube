@@ -1,0 +1,3 @@
+C:/Users/Lenovo/Documents/Projects/VDJ-Youtube/build/CMakeFiles/YoutubePlugin.dir
+C:/Users/Lenovo/Documents/Projects/VDJ-Youtube/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/Lenovo/Documents/Projects/VDJ-Youtube/build/CMakeFiles/ZERO_CHECK.dir
