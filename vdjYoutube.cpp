@@ -397,7 +397,10 @@ std::string VdjYoutube::GetCacheFilePath(const std::string &id)
 
 std::string VdjYoutube::GetYtDlpPath()
 {
-	return m_pluginPath + "\\yt-dlp.exe";
+	std::string bundled = m_pluginPath + "\\yt-dlp.exe";
+	if (fs::exists(bundled))
+		return bundled;
+	return "yt-dlp";
 }
 
 std::string VdjYoutube::ExecCmd(const char *cmd)
