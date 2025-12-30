@@ -1,0 +1,7 @@
+build/
+.vscode/
+*.user
+*.log
+plugin_log.txt
+plugin_debug.txt
+*.aps
