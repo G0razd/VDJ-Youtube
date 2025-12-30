@@ -67,6 +67,7 @@ private:
 
 	// Helpers
 	std::string ExecCmd(const char *cmd);
+	void Log(const std::string &message);
 
 	void SaveMetadata(const std::string &id, const std::string &title, const std::string &artist, int duration, const std::string &source);
 };

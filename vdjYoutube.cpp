@@ -169,6 +169,7 @@ HRESULT VDJ_API VdjYoutube::GetStreamUrl(const char *uniqueId, IVdjString &url, 
 	if (cleanUrl.empty())
 	{
 		errorMessage = "Failed to get stream URL";
+		Log("GetStreamUrl failed for: " + std::string(uniqueId) + " Output: " + output);
 		return E_FAIL;
 	}
 
@@ -324,6 +325,15 @@ HRESULT VDJ_API VdjYoutube::OnFolderContextMenu(const char *folderUniqueId, size
 
 // Private Methods
 
+void VdjYoutube::Log(const std::string &message)
+{
+	std::ofstream logFile(m_pluginPath + "\\vdj_youtube_debug.log", std::ios::app);
+	if (logFile.is_open())
+	{
+		logFile << message << std::endl;
+	}
+}
+
 void VdjYoutube::DownloadWorker()
 {
 	while (m_workerRunning)
@@ -350,7 +360,8 @@ void VdjYoutube::DownloadWorker()
 			SaveMetadata(task.id, task.title, task.artist, task.duration, task.source);
 		}
 
-		std::string outputFile = GetCacheFilePath(task.id);
+		std::string finalFile = GetCacheFilePath(task.id);
+		std::string tempFile = finalFile + ".tmp";
 		std::string format;
 		std::string cmd;
 
@@ -359,20 +370,22 @@ void VdjYoutube::DownloadWorker()
 			// If ffmpeg is available, we can merge best video and audio (up to 1080p)
 			// Force merge to mp4 container to ensure VDJ compatibility
 			format = "bestvideo[height<=1080]+bestaudio/best[height<=1080]/best";
-			cmd = "\"" + GetYtDlpPath() + "\" -f \"" + format + "\" --merge-output-format mp4 -o \"" + outputFile + "\" \"" + task.id + "\"";
+			cmd = "\"" + GetYtDlpPath() + "\" -f \"" + format + "\" --merge-output-format mp4 --force-overwrites -o \"" + tempFile + "\" \"" + task.id + "\"";
 		}
 		else
 		{
 			// Fallback to single file formats if no ffmpeg
 			format = "22/18/best[ext=mp4]/best";
-			cmd = "\"" + GetYtDlpPath() + "\" -f \"" + format + "\" -o \"" + outputFile + "\" \"" + task.id + "\"";
+			cmd = "\"" + GetYtDlpPath() + "\" -f \"" + format + "\" --force-overwrites -o \"" + tempFile + "\" \"" + task.id + "\"";
 		}
 
+		Log("Starting download for: " + task.id + " -> " + tempFile);
 		// Run download (blocking in this thread)
 		std::string output = ExecCmd(cmd.c_str());
+		Log("Download finished for: " + task.id);
 
 		// Verify download success
-		HANDLE hFile = CreateFileA(outputFile.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		HANDLE hFile = CreateFileA(tempFile.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 		if (hFile != INVALID_HANDLE_VALUE)
 		{
 			LARGE_INTEGER size;
@@ -380,14 +393,18 @@ void VdjYoutube::DownloadWorker()
 			{
 				// Download successful
 				CloseHandle(hFile);
+				// Rename temp to final
+				MoveFileExA(tempFile.c_str(), finalFile.c_str(), MOVEFILE_REPLACE_EXISTING);
+				Log("Download verified and renamed to: " + finalFile);
 			}
 			else
 			{
 				// File too small or empty, delete it
 				CloseHandle(hFile);
-				DeleteFileA(outputFile.c_str());
+				DeleteFileA(tempFile.c_str());
 				std::string metaPath = m_cachePath + "\\" + task.id + ".json";
 				DeleteFileA(metaPath.c_str());
+				Log("Download failed (too small): " + task.id);
 			}
 		}
 		else
@@ -395,6 +412,7 @@ void VdjYoutube::DownloadWorker()
 			// File not found, delete metadata
 			std::string metaPath = m_cachePath + "\\" + task.id + ".json";
 			DeleteFileA(metaPath.c_str());
+			Log("Download failed (file not found): " + task.id + " Output: " + output);
 		}
 	}
 }

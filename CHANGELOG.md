@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4] - 2025-12-30
+### Fixed
+- Fixed "Download Now" causing playback errors by downloading to a temporary file first.
+- Added debug logging to `vdj_youtube_debug.log`.
+- Re-enabled "Download Now" context menu.
+
 ## [1.2] - 2025-12-30
 ### Fixed
 - Disabled "Download Now" context menu temporarily due to stability issues.
