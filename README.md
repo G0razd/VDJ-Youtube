@@ -43,12 +43,8 @@ A powerful VirtualDJ plugin that integrates YouTube searching, streaming, and ca
 3.  You should see the **Youtube** source.
 4.  **Search**: Type in the search bar to find songs.
 5.  **Stream**: Drag a song to a deck to play it immediately.
-6.  **Download**: Right-click a song and select **Download Now** to cache it. (Temporarily disabled)
+6.  **Download**: Right-click a song and select **Download Now** to cache it.
 7.  **History**: Expand the "History" folder to see your downloaded tracks.
-
-## Known Issues
-
-*   "Download Now" context menu is currently disabled due to stability issues. Fix coming soon.
 
 ## Support
 

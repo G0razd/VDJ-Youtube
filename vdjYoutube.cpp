@@ -276,7 +276,7 @@ HRESULT VDJ_API VdjYoutube::GetFolder(const char *folderUniqueId, IVdjTracksList
 
 HRESULT VDJ_API VdjYoutube::GetContextMenu(const char *uniqueId, IVdjContextMenu *contextMenu)
 {
-	// contextMenu->add("Download Now");
+	contextMenu->add("Download Now");
 	return S_OK;
 }
 
@@ -370,6 +370,32 @@ void VdjYoutube::DownloadWorker()
 
 		// Run download (blocking in this thread)
 		std::string output = ExecCmd(cmd.c_str());
+
+		// Verify download success
+		HANDLE hFile = CreateFileA(outputFile.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		if (hFile != INVALID_HANDLE_VALUE)
+		{
+			LARGE_INTEGER size;
+			if (GetFileSizeEx(hFile, &size) && size.QuadPart > 1024)
+			{
+				// Download successful
+				CloseHandle(hFile);
+			}
+			else
+			{
+				// File too small or empty, delete it
+				CloseHandle(hFile);
+				DeleteFileA(outputFile.c_str());
+				std::string metaPath = m_cachePath + "\\" + task.id + ".json";
+				DeleteFileA(metaPath.c_str());
+			}
+		}
+		else
+		{
+			// File not found, delete metadata
+			std::string metaPath = m_cachePath + "\\" + task.id + ".json";
+			DeleteFileA(metaPath.c_str());
+		}
 	}
 }
 
