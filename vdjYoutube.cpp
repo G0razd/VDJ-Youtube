@@ -276,7 +276,7 @@ HRESULT VDJ_API VdjYoutube::GetFolder(const char *folderUniqueId, IVdjTracksList
 
 HRESULT VDJ_API VdjYoutube::GetContextMenu(const char *uniqueId, IVdjContextMenu *contextMenu)
 {
-	contextMenu->add("Download Now");
+	// contextMenu->add("Download Now");
 	return S_OK;
 }
 
