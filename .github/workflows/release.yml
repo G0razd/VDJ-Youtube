@@ -1,0 +1,38 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Download yt-dlp
+      run: |
+        Invoke-WebRequest -Uri "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe" -OutFile "yt-dlp.exe"
+
+    - name: Configure CMake
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      run: cmake --build build --config Release
+
+    - name: Create Release Zip
+      run: |
+        mkdir release
+        copy build\Release\YoutubePlugin.dll release\Youtube.dll
+        copy yt-dlp.exe release\yt-dlp.exe
+        copy icon.bmp release\icon.bmp
+        Compress-Archive -Path release\* -DestinationPath YoutubePlugin.zip
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: YoutubePlugin.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
